@@ -31,7 +31,10 @@ public abstract class NpgsqlDataSource : DbDataSource
     internal NpgsqlLoggingConfiguration LoggingConfiguration { get; }
 
     readonly PgTypeInfoResolverChain _resolverChain;
-    internal PgSerializerOptions SerializerOptions { get; private set; } = null!; // Initialized at bootstrapping
+    /// <summary>
+    ///
+    /// </summary>
+    public PgSerializerOptions SerializerOptions { get; private set; } = null!; // Initialized at bootstrapping
 
     /// <summary>
     /// Information about PostgreSQL and PostgreSQL-like databases (e.g. type definitions, capabilities...).

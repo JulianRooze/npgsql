@@ -7,6 +7,7 @@ Npgsql.NpgsqlConnectionStringBuilder.RequireAuth.get -> string?
 Npgsql.NpgsqlConnectionStringBuilder.RequireAuth.set -> void
 Npgsql.NpgsqlConnectionStringBuilder.SslNegotiation.get -> Npgsql.SslNegotiation
 Npgsql.NpgsqlConnectionStringBuilder.SslNegotiation.set -> void
+Npgsql.NpgsqlDataSource.SerializerOptions.get -> Npgsql.Internal.PgSerializerOptions!
 Npgsql.NpgsqlDataSourceBuilder.ConfigureTypeLoading(System.Action<Npgsql.NpgsqlTypeLoadingOptionsBuilder!>! configureAction) -> Npgsql.NpgsqlDataSourceBuilder!
 Npgsql.NpgsqlDataSourceBuilder.MapComposite(System.Type! clrType, string? pgName = null, Npgsql.INpgsqlNameTranslator? nameTranslator = null) -> Npgsql.NpgsqlDataSourceBuilder!
 Npgsql.NpgsqlDataSourceBuilder.MapComposite<T>(string? pgName = null, Npgsql.INpgsqlNameTranslator? nameTranslator = null) -> Npgsql.NpgsqlDataSourceBuilder!
@@ -17,6 +18,7 @@ Npgsql.NpgsqlDataSourceBuilder.UseNegotiateOptionsCallback(System.Action<System.
 Npgsql.NpgsqlDataSourceBuilder.UseSslClientAuthenticationOptionsCallback(System.Action<System.Net.Security.SslClientAuthenticationOptions!>? sslClientAuthenticationOptionsCallback) -> Npgsql.NpgsqlDataSourceBuilder!
 Npgsql.NpgsqlMetricsOptions
 Npgsql.NpgsqlMetricsOptions.NpgsqlMetricsOptions() -> void
+Npgsql.NpgsqlMultiHostDataSource.GetMultiplexCommandWriter(Npgsql.NpgsqlConnection! conn, Npgsql.Util.NpgsqlTimeout timeout) -> System.Threading.Channels.ChannelWriter<Npgsql.NpgsqlCommand!>!
 Npgsql.NpgsqlSlimDataSourceBuilder.ConfigureTracing(System.Action<Npgsql.NpgsqlTracingOptionsBuilder!>! configureAction) -> Npgsql.NpgsqlSlimDataSourceBuilder!
 Npgsql.NpgsqlSlimDataSourceBuilder.ConfigureTypeLoading(System.Action<Npgsql.NpgsqlTypeLoadingOptionsBuilder!>! configureAction) -> Npgsql.NpgsqlSlimDataSourceBuilder!
 Npgsql.NpgsqlSlimDataSourceBuilder.EnableGeometricTypes() -> Npgsql.NpgsqlSlimDataSourceBuilder!

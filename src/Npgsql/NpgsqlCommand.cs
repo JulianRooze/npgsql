@@ -1546,7 +1546,7 @@ GROUP BY pg_proc.proargnames, pg_proc.proargtypes, pg_proc.proallargtypes, pg_pr
                 Debug.Assert(conn.Settings.Multiplexing);
 
                 // The connection isn't bound to a connector - it's multiplexing time.
-                var dataSource = (MultiplexingDataSource)conn.NpgsqlDataSource;
+                var dataSource = (IMultiplexingDataSource)conn.NpgsqlDataSource;
 
                 if (!async)
                 {
@@ -1579,7 +1579,7 @@ GROUP BY pg_proc.proargnames, pg_proc.proargtypes, pg_proc.proallargtypes, pg_pr
                 ExecutionCompletion.Reset();
                 try
                 {
-                    await dataSource.MultiplexCommandWriter.WriteAsync(this, cancellationToken).ConfigureAwait(false);
+                    await dataSource.GetMultiplexCommandWriter(conn, default).WriteAsync(this, cancellationToken).ConfigureAwait(false);
                 }
                 catch (ChannelClosedException ex)
                 {

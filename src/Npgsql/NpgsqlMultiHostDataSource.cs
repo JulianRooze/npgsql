@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using System.Transactions;
 
@@ -48,7 +49,9 @@ public sealed class NpgsqlMultiHostDataSource : NpgsqlDataSource
             else
                 poolSettings.Host = host.ToString();
 
-            _pools[i] = settings.Pooling
+            _pools[i] = settings.Multiplexing
+                ? new MultiplexingDataSource(poolSettings, dataSourceConfig)
+                : settings.Pooling
                 ? new PoolingDataSource(poolSettings, dataSourceConfig)
                 : new UnpooledDataSource(poolSettings, dataSourceConfig);
         }
@@ -398,6 +401,46 @@ public sealed class NpgsqlMultiHostDataSource : NpgsqlDataSource
 
             return (numConnectors, idleCount, numConnectors - idleCount);
         }
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="conn"></param>
+    /// <param name="timeout"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public ChannelWriter<NpgsqlCommand> GetMultiplexCommandWriter(NpgsqlConnection conn, NpgsqlTimeout timeout)
+    {
+            CheckDisposed();
+
+            var exceptions = new List<Exception>();
+
+            var poolIndex = conn.Settings.LoadBalanceHosts ? GetRoundRobinIndex() : 0;
+
+            var timeoutPerHost = timeout.IsSet ? timeout.CheckAndGetTimeLeft() : TimeSpan.Zero;
+            var preferredType = GetTargetSessionAttributes(conn);
+            var checkUnpreferred = preferredType is TargetSessionAttributes.PreferPrimary or TargetSessionAttributes.PreferStandby;
+
+            var pools = _pools;
+            for (var i = 0; i < pools.Length; i++)
+            {
+                var pool = pools[poolIndex];
+                poolIndex++;
+                if (poolIndex == pools.Length)
+                    poolIndex = 0;
+
+                var databaseState = pool.GetDatabaseState();
+                if (!IsPreferred(databaseState, preferredType))
+                    continue;
+
+                if(pool is not MultiplexingDataSource multiplexingPool)
+                    continue;
+
+                return multiplexingPool.GetMultiplexCommandWriter(conn, new NpgsqlTimeout(timeoutPerHost));
+            }
+
+            throw new Exception("Unable to get multiplex command writer");
     }
 
     internal override bool TryRentEnlistedPending(

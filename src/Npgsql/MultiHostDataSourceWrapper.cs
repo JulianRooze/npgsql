@@ -2,13 +2,14 @@
 using Npgsql.Util;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using System.Transactions;
 
 namespace Npgsql;
 
 sealed class MultiHostDataSourceWrapper(NpgsqlMultiHostDataSource wrappedSource, TargetSessionAttributes targetSessionAttributes)
-    : NpgsqlDataSource(CloneSettingsForTargetSessionAttributes(wrappedSource.Settings, targetSessionAttributes), wrappedSource.Configuration)
+    : NpgsqlDataSource(CloneSettingsForTargetSessionAttributes(wrappedSource.Settings, targetSessionAttributes), wrappedSource.Configuration), IMultiplexingDataSource
 {
     internal override bool OwnsConnectors => false;
 
@@ -41,4 +42,9 @@ sealed class MultiHostDataSourceWrapper(NpgsqlMultiHostDataSource wrappedSource,
     internal override bool TryRentEnlistedPending(Transaction transaction, NpgsqlConnection connection,
         [NotNullWhen(true)] out NpgsqlConnector? connector)
         => wrappedSource.TryRentEnlistedPending(transaction, connection, out connector);
+
+    public ChannelWriter<NpgsqlCommand> GetMultiplexCommandWriter(NpgsqlConnection connection, NpgsqlTimeout timeout)
+    {
+        return wrappedSource.GetMultiplexCommandWriter(connection, timeout);
+    }
 }

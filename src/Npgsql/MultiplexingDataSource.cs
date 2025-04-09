@@ -10,7 +10,13 @@ using Npgsql.Util;
 
 namespace Npgsql;
 
-sealed class MultiplexingDataSource : PoolingDataSource
+internal interface IMultiplexingDataSource
+{
+    public ChannelWriter<NpgsqlCommand> GetMultiplexCommandWriter(NpgsqlConnection conn, NpgsqlTimeout timeout);
+    PgSerializerOptions SerializerOptions { get; }
+}
+
+class MultiplexingDataSource : PoolingDataSource, IMultiplexingDataSource
 {
     readonly ILogger _connectionLogger;
     readonly ILogger _commandLogger;
@@ -18,7 +24,7 @@ sealed class MultiplexingDataSource : PoolingDataSource
     readonly bool _autoPrepare;
 
     readonly ChannelReader<NpgsqlCommand> _multiplexCommandReader;
-    internal ChannelWriter<NpgsqlCommand> MultiplexCommandWriter { get; }
+    public ChannelWriter<NpgsqlCommand> MultiplexCommandWriter { get; }
 
     readonly Task _multiplexWriteLoop;
 
@@ -37,7 +43,6 @@ sealed class MultiplexingDataSource : PoolingDataSource
         : base(settings, dataSourceConfig)
     {
         Debug.Assert(Settings.Multiplexing);
-
         // TODO: Validate multiplexing options are set only when Multiplexing is on
 
         _autoPrepare = settings.MaxAutoPrepare > 0;
@@ -394,5 +399,10 @@ sealed class MultiplexingDataSource : PoolingDataSource
             var clone = new MultiplexingStats { StartTimestamp = StartTimestamp, NumCommands = NumCommands };
             return clone;
         }
+    }
+
+    public ChannelWriter<NpgsqlCommand> GetMultiplexCommandWriter(NpgsqlConnection conn, NpgsqlTimeout timeout)
+    {
+        return MultiplexCommandWriter;
     }
 }
