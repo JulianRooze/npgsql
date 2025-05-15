@@ -272,19 +272,19 @@ static partial class LogMessages
     [LoggerMessage(
         EventId = NpgsqlEventId.StartedTransaction,
         Level = LogLevel.Debug,
-        Message = "Starting transaction")]
+        Message = "Starting transaction (connector={ConnectorId})")]
     internal static partial void StartedTransaction(ILogger logger, IsolationLevel IsolationLevel, int ConnectorId);
 
     [LoggerMessage(
         EventId = NpgsqlEventId.CommittedTransaction,
         Level = LogLevel.Debug,
-        Message = "Committed transaction")]
+        Message = "Committed transaction (connector={ConnectorId})")]
     internal static partial void CommittedTransaction(ILogger logger, int ConnectorId);
 
     [LoggerMessage(
         EventId = NpgsqlEventId.RolledBackTransaction,
         Level = LogLevel.Debug,
-        Message = "Rolled back transaction")]
+        Message = "Rolled back transaction (connector={ConnectorId})")]
     internal static partial void RolledBackTransaction(ILogger logger, int ConnectorId);
 
     [LoggerMessage(
